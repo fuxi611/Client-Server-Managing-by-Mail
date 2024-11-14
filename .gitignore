@@ -1,32 +1,70 @@
-# Prerequisites
-*.d
+# Data
+*.json
+*.txt
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+
+
+# Visual Studio auto-generated files
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.cache
+
+# C++ Build Files
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+*.o
 *.exe
-*.out
-*.app
+*.pdb
+*.ilk
+*.idb
+*.ipdb
+*.ipch
+*.aps
+*.ncb
+*.sdf
+*.opensdf
+*.tlog
+*.log
+*.lastbuildstate
+
+# Build directories
+[Bb]uild/
+[Bb]in/
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+arm/
+arm64/
+
+# Database and IntelliSense Files
+*.sdf
+*.sqlite
+*.suo
+
+# Test Results
+TestResults/
+
+# MSBuild Logs
+*.tlog
+
+# Publish
+*.publish/
+
+# NuGet Packages
+*.nupkg
+# Uncomment if packages should be ignored globally
+# **/packages/*
+# Uncomment if NuGet packages are in a .nupkg directory in the root
+*.nuget/
+
+# Windows-specific generated files
+Thumbs.db
+Desktop.ini
+
+# Rider IDE files
+.idea/
+*.sln.iml
