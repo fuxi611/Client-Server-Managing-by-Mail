@@ -1,5 +1,4 @@
 #pragma once
-
 // Internal Libraries
 #include <iostream>
 #include <unordered_set>
@@ -8,10 +7,9 @@
 #include <regex>
 #include <stack>
 #include <queue>
-#include <ctime>
-// #include <filesystem>
 
 //#include <string>
+//#include <ctime>
 //#include <vector>
 //#include <array>
 //#include <map>
@@ -27,24 +25,19 @@
 
 
 // File stream
-bool saveStringToFile(const std::string& text,const std::string& filename);
-													// Save string to file
+bool saveStringToFile(const std::string& text, const std::string& filename);
+// Save string to file
 
 bool loadStringFromFile(std::string& content, const std::string& filename);
-													// Load string from file
+// Load string from file
 
 bool loadFileJSON(const std::string& filename, nlohmann::json& config);
-													// Load json file
+// Load json file
 
 std::string getMimeType(const std::string& filename);
-													// Determine MIME type based on file extension
+// Determine MIME type based on file extension
 
-std::string generateFilename(const std::string& fileType);
-													// Create filename base on time
-													 
-													 
-													 
-													
+
 
 // Links
 size_t WriteCallback(void* contents, size_t size,
@@ -54,20 +47,14 @@ bool openLink(const std::string& url);				// Open given link
 
 
 
-
-
 // String 
 void replaceDelimitersWithSpace(std::string& str);  // Use in stringstream
 
 bool containsString(const std::vector<std::string>& vec, const std::string& str);
-													// Check Vector contain given string
+// Check Vector contain given string
 
 std::string extractEmail(const std::string& input);
-													// Function to extract email address from a string
-
-
-
-
+// Function to extract email address from a string
 
 
 // Encode & Decode base64

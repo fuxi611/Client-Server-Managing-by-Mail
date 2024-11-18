@@ -9,7 +9,7 @@ int main() {
 	// Load data
     if (!loadTokens() || !testAccessToken())
         return -1;
-	printClientToken();
+	// printClientToken();
 
     checkAndReply();
 	return 0;
@@ -24,24 +24,32 @@ void checkAndReply() {
         // Get mail content
         std::vector<json> emails;
         getLabeledMail(emails);
+        
+        while (emails.size()) {
+            json content = emails.back();
+            emails.pop_back();
 
-        for (const json& content : emails) {
             if (!checkMailContent(content)) {
-                running = false;
+                if (content["command"] == "TERMINATE") running = false;
                 continue;
             }
-            //else {
-            //    // Send to socket
-            //    sendClientData(content);
+            else {
+                // Send to socket
+                // sendClientData(content);
 
-            //    // Get reply from socket
-            //    json reply = json();
-            //    getClientData(reply);
+                // Get reply from socket
+                json reply = json();
+                // getClientData(reply);
+                
+                // Test 
+                std::cout << reply.dump() << std::endl;
+                reply = content;
+                reply["filename"] = "text.txt";
 
-            //    // Send reply to mail
-            //    sendClientReply(reply["sender"],reply["command"],
-            //                    reply["content"],reply["filename"]);
-            //}
+                // Send reply to mail
+                sendMail(reply["sender"],reply["command"],
+                                reply["content"],reply["filename"]);
+            }
         }
 
         if (!running) {

@@ -24,11 +24,10 @@ std::string REFRESH_TOKEN = "";
 const std::string REFRESH_TOKEN_FILE = "refresh_token.txt";
 const std::string URLS_PREFIX = "https://www.googleapis.com/gmail/v1/users/me";
 
-// Server data
+// Mail data
 const std::string LABEL_NAME = "COMMAND";
 const std::string USER_FILE = "data.json";
 std::string TEMP_FOLDER = "temp/";
-
 
 
 
@@ -464,7 +463,6 @@ bool getMailContent(const std::string& messageId, json& mailInfo) {
 }
 
 bool getMailList(const std::string URLS, std::vector<json>& jsonResponseVector) {
-    std::cout << URLS << std::endl;
     CURL* curl; CURLcode res;
     std::string readBuffer;
 
@@ -512,11 +510,9 @@ bool getMailList(const std::string URLS, std::vector<json>& jsonResponseVector) 
             std::cout << "Parsed JSON array into vector of JSON objects successfully." << std::endl;
 
             for (json j : idHolder) {
-                // std::cout << j.dump() << std::endl;
                 json content; getMailContent(j["id"], content);
                 markEmailAsRead(j["id"]);
                 json extract; extractData(content, extract);
-                std::cout << extract.dump() << std::endl;
                 jsonResponseVector.push_back(extract);
             }
         }
@@ -548,11 +544,7 @@ bool getLabeledMail(std::vector<json>& emailsContent) {
 
 
 // Sent email content
-bool checkMailContent(const json& content) {
-    return false;
-}
-
-bool sendClientReply(const std::string& sender, const std::string& subject,
+bool sendMail(const std::string& sender, const std::string& subject,
     const std::string& bodyText, const std::string& filename) {
     // Initialize the MIME content as multipart if there's an attachment
     std::string mimeContent = "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n\r\n";

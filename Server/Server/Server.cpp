@@ -1,5 +1,5 @@
 #include "Utils.h"
-#include "Client.h"
+#include "Server.h"
 using json = nlohmann::json; // Using json type
 
 PCSTR IP_INDEX = "10.20.0.242";
@@ -13,20 +13,49 @@ PCSTR IP_INDEX = "10.20.0.242";
 // Get data from Server
 
 // Server data
-
-
-
-
 bool checkMailContent(const json& content) {
     std::cout << content.dump() << std::endl;
-    // Check incorrect data
-    if (content["command"].empty() || content["pass_ip"].empty()) return false;
-    if (content["command"] == "TERMINATE") return false;
-    return true;
+    return false;
 }
 
 
+bool getData(SOCKET clientSocket, json& reply) {
+    char buffer[BUFFER_SIZE];
+    int bytesRead;
+    std::string receivedData;
 
+    // Receive data from client in chunks
+    while ((bytesRead = recv(clientSocket, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+        buffer[bytesRead] = '\0';  // Null-terminate to safely use as a C-string
+        receivedData += buffer;    // Append the data chunk to the receivedData string
+        std::cout << buffer << " ";
+
+        // Check for end-of-transmission marker
+        if (receivedData.find("<END>") != std::string::npos) {
+            // Remove "<END>" marker from data if necessary
+            receivedData.erase(receivedData.find("<END>"));
+            break;
+        }
+    }
+
+    // Check if the connection was closed or an error occurred
+    if (bytesRead == 0) {
+        std::cout << "Connection closed by client." << std::endl;
+    }
+    else if (bytesRead == SOCKET_ERROR) {
+        std::cerr << "recv failed. Error Code: " << WSAGetLastError() << std::endl;
+        return false;
+    }
+
+    // Parse the accumulated data into JSON
+    try {
+        reply = json::parse(receivedData);
+    }
+    catch (const json::parse_error& e) {
+        std::cerr << "JSON parse error: " << e.what() << std::endl;
+    }
+    return true;
+}
 
 bool sendData(SOCKET clientSocket, const json& data) {
     std::string jsonString = data.dump() + "<END>";
@@ -40,7 +69,7 @@ bool sendData(SOCKET clientSocket, const json& data) {
     return true;
 }
 
-bool sendClientData(const json& data){
+bool sendClientData(const json& data) {
     WSADATA wsa;
     SOCKET clientSocket;
     sockaddr_in serverAddr;
@@ -83,44 +112,6 @@ bool sendClientData(const json& data){
     closesocket(clientSocket);
     WSACleanup();
 
-    return true;
-}
-
-bool getData(SOCKET clientSocket, json& reply) {
-    char buffer[BUFFER_SIZE];
-    int bytesRead;
-    std::string receivedData;
-
-    // Receive data from client in chunks
-    while ((bytesRead = recv(clientSocket, buffer, BUFFER_SIZE - 1, 0)) > 0) {
-        buffer[bytesRead] = '\0';  // Null-terminate to safely use as a C-string
-        receivedData += buffer;    // Append the data chunk to the receivedData string
-        std::cout << buffer << " ";
-
-        // Check for end-of-transmission marker
-        if (receivedData.find("<END>") != std::string::npos) {
-            // Remove "<END>" marker from data if necessary
-            receivedData.erase(receivedData.find("<END>"));
-            break;
-        }
-    }
-
-    // Check if the connection was closed or an error occurred
-    if (bytesRead == 0) {
-        std::cout << "Connection closed by client." << std::endl;
-    }
-    else if (bytesRead == SOCKET_ERROR) {
-        std::cerr << "recv failed. Error Code: " << WSAGetLastError() << std::endl;
-        return false;
-    }
-
-    // Parse the accumulated data into JSON
-    try {
-        reply = json::parse(receivedData);
-    }
-    catch (const json::parse_error& e) {
-        std::cerr << "JSON parse error: " << e.what() << std::endl;
-    }
     return true;
 }
 

@@ -5,18 +5,19 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
+enum COMMAND {
+	LIST_APP
+};
 
-// bool checkMailContent(const json& content);
-					// Check mail content
-
-bool sendData(SOCKET clientSocket, const nlohmann::json& data);
-					// Sent data to socket
-
-bool sendClientData(const nlohmann::json& data);
-					// Sent data to server
 
 bool getData(SOCKET clientSocket, nlohmann::json& reply);
-					// Get data from socket
+// Get data from socket
+
+bool sendData(SOCKET clientSocket, const nlohmann::json& data);
+// Sent data to socket
+
+bool sendClientData(const nlohmann::json& data);
+// Sent data to server
 
 bool getClientData(nlohmann::json& data);
-					// Get data from server
+// Get data from server

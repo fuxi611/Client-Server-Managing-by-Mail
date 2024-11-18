@@ -6,7 +6,7 @@ using json = nlohmann::json;
 
 
 // File stream
-bool saveStringToFile(const std::string& text,const std::string& filename) {
+bool saveStringToFile(const std::string& text, const std::string& filename) {
     std::ofstream outFile(filename);  // Open the file for writing
 
     if (outFile.is_open()) {  // Check if the file was opened successfully
@@ -188,25 +188,6 @@ std::string getMimeType(const std::string& filename) {
         return "application/octet-stream";  // generic binary stream
     }
 }
-
-//std::string generateFilename(const std::string& fileType) {
-//    // Get the current time
-//    std::time_t now = std::time(nullptr);
-//    std::tm* localTime = std::localtime_s(&now);
-//
-//    // Format the time as YYYYMMDD_HHMMSS
-//    char buffer[20];
-//    std::strftime(buffer, sizeof(buffer), "%Y%m%d_%H%M%S", localTime);
-//
-//    // Construct the file path
-//    std::ostringstream oss;
-//    oss << "File/" << buffer << "." << fileType;
-//
-//    return oss.str();
-//}
-//
-//
-
 
 
 

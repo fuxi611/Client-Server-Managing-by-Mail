@@ -59,6 +59,6 @@ bool getLabeledMail(std::vector<nlohmann::json>& emailsContent);
 bool checkMailContent(const nlohmann::json& content);
 
 
-bool sendClientReply(const std::string& sender, const std::string& subject,
+bool sendMail(const std::string& sender, const std::string& subject,
 	const std::string& bodyText, const std::string& filename);
 									// Sent client reply to user
