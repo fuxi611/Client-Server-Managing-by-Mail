@@ -1,26 +1,15 @@
 # Client-Server-Managing-by-Mail
-A Client-Server managing system that use Email to control the system
-
-## Information
+A Local Client-Server system for handling devices connected to Client via Gmail API. By sending emails to client, users can manipulate with server's resources (Data/Files/Monitor/...) passively.
 
 ## Presisquete
+0. Requiment
 
-## Tutorial
 1. Setting up
 
 - Pull the project: https://github.com/TheWallOnFire/Client-Server-Managing-by-Mail
-- Setup Google API user data
+- Get access to google API and get a credential
+- Setup a client machine and a server machine
+- Create a emails and sent it to client's email to begin
 
-2. Download 
 
-- Library: 
-+ .\vcpkg install curl
-+ .\vcpkg install nlohmann-json
-+ 
-- 
-
-3. Setup data
-a) Set Up a Google Cloud Project
-- Go to Google Cloud, open  project
-- Set Up OAuth 2.0 Credentials (Ask Admin to create your id and give to you)
-- Save it in Client Folder as "credentials.json"
+## Contact

@@ -2,22 +2,51 @@
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #pragma comment(lib, "ws2_32.lib")
 
 
-enum COMMAND {
-	LIST_APP
-};
 
 
-bool getData(SOCKET clientSocket, nlohmann::json& reply);
-// Get data from socket
+// Data management
+void printServerIP();	
+						// Find server IP
 
-bool sendData(SOCKET clientSocket, const nlohmann::json& data);
-// Sent data to socket
+bool checkMailContent(const nlohmann::json& content);
+						// Check mail content
 
-bool sendClientData(const nlohmann::json& data);
-// Sent data to server
+bool loadData();
+						// Load data
 
-bool getClientData(nlohmann::json& data);
-// Get data from server
+
+
+
+// Server handling
+bool prepareServer();	
+						// Setup server for connection
+						
+bool connectClient();	
+						// Listen for connection
+
+bool receiveClientData(SOCKET clientSocket, nlohmann::json& data);
+						// receive data
+
+bool sendDataToClient(SOCKET clientSocket, const nlohmann::json& data);
+						// send data
+
+bool shutdownServer();	
+						// Shutting down the server
+
+
+
+
+
+
+// Message
+void runServer();		
+						// Running server
+
+bool ReadEmailContent(const nlohmann::json& get, nlohmann::json& send);
+						// Read and reply
+
+

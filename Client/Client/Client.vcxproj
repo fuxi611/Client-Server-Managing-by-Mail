@@ -129,11 +129,14 @@
   <ItemGroup>
     <ClInclude Include="API.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="GUI.h" />
+    <ClInclude Include="Source.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="API.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>

@@ -2,7 +2,9 @@
 *.json
 *.txt
 
-
+# Whitelist
+### THIS IS SERVER'S DATA
+!Server/Server/data.json
 
 # Visual Studio auto-generated files
 .vscode/

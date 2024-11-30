@@ -1,0 +1,17 @@
+{
+  "ip_addresses":
+  [
+    "1.1.1.1",
+    "2.2.2.2",
+    "032.431.321.34"
+  ],
+  "commands":
+  [
+    "SHUTDOWN",
+    "DELETE"
+  ],
+  "user_emails":
+  [
+    "tuongmanhhuynh2005physic@gmail.com"
+  ]
+}

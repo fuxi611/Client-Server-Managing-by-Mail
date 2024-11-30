@@ -5,18 +5,18 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
+bool checkServerOnline();
+					// Check server online
 
-// bool checkMailContent(const json& content);
+bool checkValidMails(const json& content);
 					// Check mail content
 
-bool sendData(SOCKET clientSocket, const nlohmann::json& data);
+bool sendData(SOCKET clientSocket, const json& data);
 					// Sent data to socket
 
-bool sendClientData(const nlohmann::json& data);
-					// Sent data to server
-
-bool getData(SOCKET clientSocket, nlohmann::json& reply);
+bool getData(SOCKET clientSocket, json& reply);
 					// Get data from socket
 
-bool getClientData(nlohmann::json& data);
-					// Get data from server
+bool createSocket(SOCKET& clientSocket);
+bool releaseSocket(SOCKET& clientSocket);
+

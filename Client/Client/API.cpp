@@ -1,14 +1,8 @@
 #include "API.h" // It's header file
 #include "Utils.h" // Utils function
-using json = nlohmann::json; // Using json type
 
 
 
-
-// Not need to use
-//std::vector<std::string> USER_ACCOUNTS;
-//std::vector<std::string> COMMAND_LIST;
-//std::vector<std::string> SERVER_IPS;
 
 // Set Up OAuth 2.0 Credentials
 std::string CLIENT_ID = "";
@@ -122,14 +116,12 @@ bool testAccessToken() {
 
 // Get data from Google API ~~~~~~~~~~~~~~~~~~~~~~~~~~
 std::string getAuthorizationUrl() {
-    std::string authURL = "https://accounts.google.com/o/oauth2/v2/auth?"
-        "scope=https://www.googleapis.com/auth/gmail.modify&"
-        "access_type=offline&"
-        "include_granted_scopes=true&"
-        "response_type=code&"
-        "client_id=" + CLIENT_ID + "&"
-        "redirect_uri=" + REDIRECT_URI;
-    return authURL;
+    std::string auth_url = "https://accounts.google.com/o/oauth2/v2/auth?"
+        "client_id=" + CLIENT_ID +
+        "&redirect_uri=" + REDIRECT_URI +
+        "&response_type=code" +  // response_type is required
+        "&scope=https://www.googleapis.com/auth/gmail.modify";
+    return auth_url;
 }
 
 std::string getResponse(const std::string& authorizationCode) {
@@ -345,9 +337,6 @@ bool extractData(const json rawData, json& extractData) {
             if (name == "From") {
                 extractData["sender"] = extractEmail(value); // Extract only email
             }
-            else if (name == "To") {
-                extractData["receiver"] = extractEmail(value); // Extract only email
-            }
             else if (name == "Subject") {
                 extractData["subject"] = value;
             }
@@ -388,7 +377,7 @@ bool extractData(const json rawData, json& extractData) {
     std::string w1, w2;
     if (ss >> w1 >> w2) {
         extractData["command"] = w1;
-        extractData["pass_ip"] = w2;
+        extractData["ip_address"] = w2;
         std::cout << "Get command and IP" << std::endl;
         extractData.erase("subject");
         extractData.erase("headers");
@@ -443,7 +432,6 @@ bool getMailContent(const std::string& messageId, json& mailInfo) {
     // Check if the HTTP response code indicates success
     if (httpCode == 200) {
         try {
-            // std::cout << readBuffer << std::endl;
             auto messageJson = json::parse(readBuffer);
             mailInfo = messageJson;
             markEmailAsRead(messageId);
@@ -462,7 +450,7 @@ bool getMailContent(const std::string& messageId, json& mailInfo) {
 
 }
 
-bool getMailList(const std::string URLS, std::vector<json>& jsonResponseVector) {
+bool getMailList(const std::string URLS, std::vector<json>& mail_array) {
     CURL* curl; CURLcode res;
     std::string readBuffer;
 
@@ -502,26 +490,24 @@ bool getMailList(const std::string URLS, std::vector<json>& jsonResponseVector) 
 
     // Parse readBuffer into JSON and store in vector
     try {
-        json jsonResponse = json::parse(readBuffer);
+        json id_list = json::parse(readBuffer);
        
         // Check if the response contains an array under a specific key, e.g., "messages"
-        if (jsonResponse.contains("messages") && jsonResponse["messages"].is_array()) {
-            std::vector<json> idHolder = jsonResponse["messages"].get<std::vector<json>>();
+        if (id_list.contains("messages") && id_list["messages"].is_array()) {
+            std::vector<json> id_arr = id_list["messages"].get<std::vector<json>>();
             std::cout << "Parsed JSON array into vector of JSON objects successfully." << std::endl;
 
-            for (json j : idHolder) {
-                json content; getMailContent(j["id"], content);
-                markEmailAsRead(j["id"]);
+            for (json id_mail : id_arr) {
+                json content; getMailContent(id_mail["id"], content);
+                markEmailAsRead(id_mail["id"]);
                 json extract; extractData(content, extract);
-                jsonResponseVector.push_back(extract);
+                mail_array.push_back(extract);
             }
         }
         else {
             std::cerr << "Expected JSON array under key 'messages' but got a different structure." << std::endl;
             return false;
         }
-
-
     }
     catch (const json::parse_error& e) {
         std::cerr << "Failed to parse JSON response: " << e.what() << std::endl;
@@ -544,13 +530,17 @@ bool getLabeledMail(std::vector<json>& emailsContent) {
 
 
 // Sent email content
-bool sendMail(const std::string& sender, const std::string& subject,
-    const std::string& bodyText, const std::string& filename) {
+bool sendMail(const json& reply) {
+    const std::string& receiver = reply["receiver"];
+    const std::string& subject = reply["subject"];
+    const std::string& bodypart = reply["bodypart"];
+    const std::string& filename = reply["filename"];
+
     // Initialize the MIME content as multipart if there's an attachment
     std::string mimeContent = "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n\r\n";
     mimeContent += "--boundary\r\n";
     mimeContent += "Content-Type: text/plain; charset=\"UTF-8\"\r\n\r\n";
-    mimeContent += bodyText + "\r\n\r\n";
+    mimeContent += bodypart + "\r\n\r\n";
 
     // If filename is provided, read and encode the file for attachment
     if (!filename.empty()) {
@@ -569,7 +559,7 @@ bool sendMail(const std::string& sender, const std::string& subject,
     mimeContent += "--boundary--";
 
     // Construct the raw email message with headers
-    std::string rawMessage = "To: " + sender + "\r\nSubject: " + subject + "\r\n" + mimeContent;
+    std::string rawMessage = "To: " + receiver + "\r\nSubject: " + subject + "\r\n" + mimeContent;
     std::string encodedMessage = base64UrlEncode(rawMessage);
 
     // Prepare the JSON payload

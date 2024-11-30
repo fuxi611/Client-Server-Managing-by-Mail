@@ -1,9 +1,5 @@
 #include "Utils.h"
 
-using json = nlohmann::json;
-
-
-
 
 // File stream
 bool saveStringToFile(const std::string& text,const std::string& filename) {
@@ -189,24 +185,17 @@ std::string getMimeType(const std::string& filename) {
     }
 }
 
-//std::string generateFilename(const std::string& fileType) {
-//    // Get the current time
-//    std::time_t now = std::time(nullptr);
-//    std::tm* localTime = std::localtime_s(&now);
-//
-//    // Format the time as YYYYMMDD_HHMMSS
-//    char buffer[20];
-//    std::strftime(buffer, sizeof(buffer), "%Y%m%d_%H%M%S", localTime);
-//
-//    // Construct the file path
-//    std::ostringstream oss;
-//    oss << "File/" << buffer << "." << fileType;
-//
-//    return oss.str();
-//}
-//
-//
-
+bool deleteFile(const std::string& filePath) {
+    // Convert std::string to const char* using c_str()
+    if (std::remove(filePath.c_str()) == 0) {
+        std::cout << "File deleted successfully.\n";
+        return true;
+    }
+    else {
+        std::perror("Error deleting file");
+        return false;
+    }
+}
 
 
 
@@ -235,6 +224,20 @@ bool openLink(const std::string& url) {
     // Execute the system command to open the URL
     system(command.c_str());
     return true;
+}
+
+bool checkInternet() {
+    int ret = std::system("ping -n 1 8.8.8.8 > nul"); // For Windows
+    bool connect = (ret == 0);
+
+    if (!connect) {
+        std::cout << "Internet Unavailable...Can not connect to server";
+        return false;
+    }
+    else {
+        std::cout << "Internet Available...";
+        return true;
+    }
 }
 
 
@@ -272,6 +275,15 @@ std::string extractEmail(const std::string& input) {
     }
     return ""; // Return empty string if no email is found
 }
+
+bool checkIPAddress(std::string& ip) {
+    // Regular expression for a valid IPv4 address
+    const std::regex ipRegex(
+        R"(^((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$)"
+    );
+    return std::regex_match(ip, ipRegex);
+}
+
 
 
 
