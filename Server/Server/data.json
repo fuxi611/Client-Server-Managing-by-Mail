@@ -8,7 +8,9 @@
   "commands":
   [
     "SHUTDOWN",
-    "DELETE"
+    "DELETE",
+    "CAPTURE",
+    "TASKLIST"
   ],
   "user_emails":
   [

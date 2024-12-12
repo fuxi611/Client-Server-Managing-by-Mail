@@ -3,10 +3,10 @@
 
 // File stream
 bool saveStringToFile(const std::string& text, const std::string& filename) {
-    std::ofstream outFile(filename);  // Open the file for writing
+    std::ofstream outFile(filename, std::ios::binary);  // Open the file for writing in binary mode
 
     if (outFile.is_open()) {  // Check if the file was opened successfully
-        outFile << text;  // Write the string to the file
+        outFile.write(text.c_str(), text.size());  // Write the raw binary data from string
         outFile.close();  // Close the file after writing
     }
     else {
@@ -17,18 +17,23 @@ bool saveStringToFile(const std::string& text, const std::string& filename) {
 }
 
 bool loadStringFromFile(std::string& content, const std::string& filename) {
-    std::ifstream inFile(filename);  // Open the file for reading
+    std::ifstream inFile(filename, std::ios::binary);  // Open the file for reading in binary mode
 
     if (inFile.is_open()) {  // Check if the file was opened successfully
-        std::ostringstream ss;
-        ss << inFile.rdbuf();  // Read the entire file content into the stringstream
-        content = ss.str();    // Convert stringstream to string
-        inFile.close();        // Close the file after reading
-        return true;           // Return true if successful
+        // Get the file size and reserve space in the string
+        inFile.seekg(0, std::ios::end);
+        size_t size = inFile.tellg();
+        inFile.seekg(0, std::ios::beg);
+        content.resize(size);
+
+        // Read the binary content into the string
+        inFile.read(&content[0], size);
+        inFile.close();  // Close the file after reading
+        return true;
     }
     else {
         std::cerr << "Failed to open file: " << filename << std::endl;  // Error handling if the file can't be opened
-        return false;          // Return false if the file can't be opened
+        return false;
     }
 }
 

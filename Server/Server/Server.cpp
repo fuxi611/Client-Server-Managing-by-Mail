@@ -1,5 +1,6 @@
 #include "Utils.h"
 #include "Server.h"
+#include "Command.h"
 
 #define PORT 12345
 #define BUFFER_SIZE 4096 
@@ -11,7 +12,7 @@ SOCKET serverSocket, clientSocket;
 
 // Server data
 std::string SERVER_IP = "";
-std::string DATAFILE = "data.json";
+std::string DATAFILE = "data.json"; 
 std::vector<std::string> IP_ADDRESSES; // Available devices
 std::vector<std::string> COMMAND_LIST; // Available commands
 std::vector<std::string> USER_EMAILS;  // Registered users
@@ -330,44 +331,6 @@ bool createReply(json& reply,
 
 
 
-
-
-// Running server
-enum class COMMAND_CODE {
-    // Change corresponding name to commands
-    SHUTDOWN = 1, // 
-    COMMAND2 = 2,
-    COMMAND3 = 3,
-    COMMAND4 = 4,
-    COMMAND5 = 5,
-    COMMAND6 = 6,
-    COMMAND7 = 7,
-    COMMAND8 = 8,
-    COMMAND9 = 9,
-
-    UNKNOWN = 0
-};
-
-COMMAND_CODE GetCommandCode(std::string command) {
-    static const std::unordered_map<std::string, COMMAND_CODE> stringToEnumMap = {
-        {"SHUTDOWN", COMMAND_CODE::SHUTDOWN},
-        {"COMMAND2", COMMAND_CODE::COMMAND2},
-        {"COMMAND3", COMMAND_CODE::COMMAND3},
-        {"COMMAND4", COMMAND_CODE::COMMAND4},
-        {"COMMAND5", COMMAND_CODE::COMMAND5},
-        {"COMMAND6", COMMAND_CODE::COMMAND6},
-        {"COMMAND7", COMMAND_CODE::COMMAND7},
-        {"COMMAND8", COMMAND_CODE::COMMAND8},
-        {"COMMAND9", COMMAND_CODE::COMMAND9},
-    };
-
-    auto it = stringToEnumMap.find(command);
-    if (it != stringToEnumMap.end()) {
-        return it->second;
-    }
-    return COMMAND_CODE::UNKNOWN;
-}
-
 void runServer() {
     // Prepare the server: Initialize, bind, and listen for incoming connections
     if (!prepareServer()) {
@@ -411,37 +374,28 @@ bool ReadEmailContent(const json& data, json& respond) {
     std::cout << data.dump() << std::endl;
     std::string subject = "Reply: " + data["command"].get<std::string>()
                            + " " + data["ip_address"].get<std::string>();
-    std::string bodypart = "Error";
+    std::string bodypart = "";
     std::string receiver = data["sender"].get<std::string>();
     std::string filename = "";
 
     // Check email
     if (!checkMailContent(data)) {
         std::cout << "Can't process the mail" << std::endl;
-        createReply(respond,receiver, filename,subject, bodypart);
+        bodypart = "Error!";
     }
     else {
         // Check command
         std::string command = data["command"].get<std::string>();
-        switch (GetCommandCode(command))
-        {
-        case COMMAND_CODE::SHUTDOWN: //
-        case COMMAND_CODE::COMMAND2: // 
-        case COMMAND_CODE::COMMAND3: // 
-        case COMMAND_CODE::COMMAND4: //
-        case COMMAND_CODE::COMMAND5: //
-        case COMMAND_CODE::COMMAND6: //
-        case COMMAND_CODE::COMMAND7: //
-        case COMMAND_CODE::COMMAND8: //
-        case COMMAND_CODE::COMMAND9: //
-        default: {
-            // Unknown command
-            break;
+        FuncPtr commandPtr = getFuncPtr(command);
+        if (!commandPtr || !commandPtr(bodypart,filename)) {
+            std::cout << "Can't get server respond!\n";
+            bodypart = "Error!";
         }
+        else {
+            std::cout << "Get server respond!\n";
+            bodypart = "Successfully!";
         }
-        std::cout << "Get mail data" << std::endl;
-        bodypart = "Success"; filename = "text.txt";
-        createReply(respond, receiver, filename, subject, bodypart);
     }
+    createReply(respond, receiver, filename, subject, bodypart);
     return true;
 }

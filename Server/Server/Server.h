@@ -14,7 +14,7 @@ void printServerIP();
 
 bool checkMailContent(const nlohmann::json& content);
 						// Check mail content
-
+	
 bool loadData();
 						// Load data
 

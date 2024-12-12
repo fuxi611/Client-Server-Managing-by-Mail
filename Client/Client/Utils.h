@@ -10,7 +10,7 @@
 #include <queue>
 #include <ctime>
 #include <cstdio>
-// #include <filesystem>
+#include <filesystem>
 
 //#include <string>
 //#include <vector>
@@ -40,11 +40,7 @@ bool loadFileJSON(const std::string& filename, json& config);
 					// Load json file
 
 std::string getMimeType(const std::string& filename);
-					// Determine MIME type based on file extension
-
-std::string generateFilename(const std::string& fileType);
-					// Create filename base on time
-													 
+					// Determine MIME type based on file extension												 
 													 
 													 
 													
@@ -77,7 +73,8 @@ bool checkIPAddress(std::string& ip);
 bool deleteFile(const std::string& filePath);
 					// Function to delete a file by its address
 
-
+std::string getFilename(const std::string& filePath);
+					// Get filename from address
 
 
 // Encode & Decode base64
@@ -89,7 +86,5 @@ std::string base64_decode(const std::string& encoded);
 					//
 std::string base64_encode(const std::string& input);
 					//
-
-
 
 

@@ -118,6 +118,7 @@ bool getData(SOCKET clientSocket, json& reply) {
     if (reply.contains("filename")) {
         std::string filename = reply["filename"];
         if (filename.empty()) return true;
+        filename = getFilename(filename); // Get filename from address
 
         std::ofstream file(filename, std::ios::binary);
         if (!file.is_open()) {
