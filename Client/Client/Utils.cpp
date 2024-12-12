@@ -2,11 +2,11 @@
 
 
 // File stream
-bool saveStringToFile(const std::string& text,const std::string& filename) {
-    std::ofstream outFile(filename);  // Open the file for writing
+bool saveStringToFile(const std::string& text, const std::string& filename) {
+    std::ofstream outFile(filename, std::ios::binary);  // Open the file for writing in binary mode
 
     if (outFile.is_open()) {  // Check if the file was opened successfully
-        outFile << text;  // Write the string to the file
+        outFile.write(text.c_str(), text.size());  // Write the raw binary data from string
         outFile.close();  // Close the file after writing
     }
     else {
@@ -17,18 +17,23 @@ bool saveStringToFile(const std::string& text,const std::string& filename) {
 }
 
 bool loadStringFromFile(std::string& content, const std::string& filename) {
-    std::ifstream inFile(filename);  // Open the file for reading
+    std::ifstream inFile(filename, std::ios::binary);  // Open the file for reading in binary mode
 
     if (inFile.is_open()) {  // Check if the file was opened successfully
-        std::ostringstream ss;
-        ss << inFile.rdbuf();  // Read the entire file content into the stringstream
-        content = ss.str();    // Convert stringstream to string
-        inFile.close();        // Close the file after reading
-        return true;           // Return true if successful
+        // Get the file size and reserve space in the string
+        inFile.seekg(0, std::ios::end);
+        size_t size = inFile.tellg();
+        inFile.seekg(0, std::ios::beg);
+        content.resize(size);
+
+        // Read the binary content into the string
+        inFile.read(&content[0], size);
+        inFile.close();  // Close the file after reading
+        return true;
     }
     else {
         std::cerr << "Failed to open file: " << filename << std::endl;  // Error handling if the file can't be opened
-        return false;          // Return false if the file can't be opened
+        return false;
     }
 }
 
@@ -186,9 +191,15 @@ std::string getMimeType(const std::string& filename) {
 }
 
 bool deleteFile(const std::string& filePath) {
-    // Convert std::string to const char* using c_str()
+    // Check if the file exists before attempting to delete
+    if (!std::filesystem::exists(filePath)) {
+        std::cerr << "Error: File does not exist: " << filePath << std::endl;
+        return false;
+    }
+
+    // Attempt to delete the file
     if (std::remove(filePath.c_str()) == 0) {
-        std::cout << "File deleted successfully.\n";
+        std::cout << "File deleted successfully: " << filePath << std::endl;
         return true;
     }
     else {
@@ -284,71 +295,71 @@ bool checkIPAddress(std::string& ip) {
     return std::regex_match(ip, ipRegex);
 }
 
+std::string getFilename(const std::string& filePath) {
+    // Find the position of the last directory separator
+    size_t pos = filePath.find_last_of("/\\");
 
+    // Extract the filename
+    if (pos != std::string::npos) {
+        return filePath.substr(pos + 1);
+    }
+
+    // If no separator is found, the entire string is the filename
+    return filePath;
+}
 
 
 // Encode & Decode base64
 std::string base64UrlDecode(const std::string& input) {
-    // Copy input and replace Base64URL characters with Base64 equivalents
-    std::string base64Url = input;
-    std::replace(base64Url.begin(), base64Url.end(), '-', '+');
-    std::replace(base64Url.begin(), base64Url.end(), '_', '/');
+    static const std::string base64_chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-    // Add padding if necessary
-    while (base64Url.size() % 4 != 0) {
-        base64Url += '=';
-    }
-
-    // Base64 decoding table
-    const std::string base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    std::vector<int> base64Index(256, -1);
-    for (int i = 0; i < 64; ++i) {
-        base64Index[base64Chars[i]] = i;
-    }
-
-    // Decode Base64
     std::string decoded;
-    int val = 0, bits = -8;
-    for (const unsigned char& c : base64Url) {
-        if (base64Index[c] == -1) break; // Ignore padding
-        val = (val << 6) + base64Index[c];
-        bits += 6;
+    std::vector<int> T(256, -1);  // A lookup table to map characters to their indices in base64_chars
 
-        if (bits >= 0) {
-            decoded.push_back(static_cast<char>((val >> bits) & 0xFF));
-            bits -= 8;
+    for (int i = 0; i < 64; i++) {
+        T[base64_chars[i]] = i;
+    }
+
+    int val = 0, valb = -8;
+
+    for (unsigned char c : input) {
+        if (T[c] == -1) break;  // Ignore invalid characters (e.g., padding)
+
+        val = (val << 6) + T[c];
+        valb += 6;
+
+        if (valb >= 0) {
+            decoded.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
         }
     }
+
     return decoded;
 }
 std::string base64UrlEncode(const std::string& input) {
     static const char* base64_chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "0123456789+/";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    static const char* base64_url_chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
     std::string encoded;
     int val = 0, valb = -6;
+
+    // Process each byte of input
     for (unsigned char c : input) {
         val = (val << 8) + c;
         valb += 8;
         while (valb >= 0) {
-            encoded.push_back(base64_chars[(val >> valb) & 0x3F]);
+            encoded.push_back(base64_url_chars[(val >> valb) & 0x3F]);
             valb -= 6;
         }
     }
-    if (valb > -6) encoded.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
-    while (encoded.size() % 4) encoded.push_back('=');
 
-    // Convert Base64 to Base64 URL-safe
-    for (char& c : encoded) {
-        if (c == '+') c = '-';
-        else if (c == '/') c = '_';
-    }
-
-    // Remove padding
-    while (!encoded.empty() && encoded.back() == '=') {
-        encoded.pop_back();
+    // If there are leftover bits, pad with the appropriate characters
+    if (valb > -6) {
+        encoded.push_back(base64_url_chars[((val << 8) >> (valb + 8)) & 0x3F]);
     }
 
     return encoded;

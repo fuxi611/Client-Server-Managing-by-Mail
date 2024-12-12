@@ -1,3 +1,3 @@
-#pragma once
-//#include <QtWidgets/QApplication>
-//#include <QtWidgets/QPushButton>
+//#pragma once
+//#include <QApplication>
+//#include <QPushButton>

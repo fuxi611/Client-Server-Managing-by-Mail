@@ -121,6 +121,7 @@ std::string getAuthorizationUrl() {
         "&redirect_uri=" + REDIRECT_URI +
         "&response_type=code" +  // response_type is required
         "&scope=https://www.googleapis.com/auth/gmail.modify";
+    std::cout << "Copy and paste this url to web\n";
     return auth_url;
 }
 
@@ -546,7 +547,7 @@ bool sendMail(const json& reply) {
     if (!filename.empty()) {
         std::string fileContent;
         loadStringFromFile(fileContent,filename);
-        std::string encodedFile = base64UrlEncode(fileContent);
+        std::string encodedFile = base64_encode(fileContent);
         std::string mimeType = getMimeType(filename);
 
         mimeContent += "--boundary\r\n";
