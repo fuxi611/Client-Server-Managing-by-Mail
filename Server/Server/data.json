@@ -7,13 +7,16 @@
   ],
   "commands":
   [
-    "SHUTDOWN",
-    "DELETE",
-    "CAPTURE",
-    "TASKLIST"
+    "LIST_APP", "START_APP", "STOP_APP",
+    "LIST_SERVICE", "START_SERVICE", "STOP_SERVICE", 
+    "SHUTDOWN", "RESTART", "COPY", "DELETE", 
+    "CAPTURE", "WEBCAM", "KEYLOGGER", "KEYLOCK"
   ],
   "user_emails":
   [
-    "tuongmanhhuynh2005physic@gmail.com"
+    "tuongmanhhuynh2005physic@gmail.com",
+    "tuongmanhhuynh5002physic@gmail.com",
+    "thanhtran.211005@gmail.com",
+    "phucbeo2005dt@gmail.com"
   ]
 }

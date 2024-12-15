@@ -5,6 +5,7 @@
 # Whitelist
 ### THIS IS SERVER'S DATA
 !Server/Server/data.json
+!Server/Server/filter.xml
 
 # Visual Studio auto-generated files
 .vscode/

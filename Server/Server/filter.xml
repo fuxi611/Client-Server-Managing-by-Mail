@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:apps="http://schemas.google.com/apps/2006">
+  <title>Mail Filters</title>
+  <id>tag:RANDOM_MAIL</id>
+  <updated>2024-12-15T00:00:00Z</updated>
+  <entry>
+    <category term="filter" scheme="http://schemas.google.com/g/2005#kind"/>
+    <title>Mail Filter</title>
+    <id>tag:RANDOM_MAIL-filter</id>
+    <updated>2024-12-15T00:00:00Z</updated>
+    <content/>
+    <apps:property name="hasTheWord" value="LIST_APP OR START_APP OR STOP_APP OR
+     LIST_SERVICE OR START_SERVICE OR STOP_SERVICE OR SHUTDOWN OR RESTART OR
+      COPY OR DELETE OR CAPTURE OR WEBCAM OR KEYLOGGER OR KEYLOCK"/>
+    <apps:property name="label" value="COMMAND"/>
+    <apps:property name="shouldArchive" value="false"/>
+  </entry>
+</feed>
