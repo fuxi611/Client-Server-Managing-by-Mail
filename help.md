@@ -7,11 +7,13 @@
 - Open using Visual Studio 2022
   
 1. External Libraries
-- Pull vcpgk for C++ package management
-- Open Powercell on Window, change directory to vcpgk folder
+- Pull vcpgk for C++ package management using github
+- Open Powercell on Window as admin
+- Change directory to vcpgk folder: "cd [directory]"
 - Using "./vcpgk" to enter command
-- Ex: ./vcpgk install ______
-- List of lib: curl, nlohmann, 
+- Ex: "./vcpgk install [library]"
+- List of lib: curl, nlohmann, json, opencv,
+- Type "./vcpgk integrate install" into command line to setup vcpgk for visual studio
   
 1. Access Google API for Client
 a) Go to the Google Cloud Console: https://console.cloud.google.com/
