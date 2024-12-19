@@ -45,8 +45,3 @@ bool shutdownServer();
 // Message
 void runServer();		
 						// Running server
-
-bool ReadEmailContent(const nlohmann::json& get, nlohmann::json& send);
-						// Read and reply
-
-

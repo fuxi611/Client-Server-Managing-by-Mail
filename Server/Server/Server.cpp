@@ -8,8 +8,6 @@
 SOCKET serverSocket, clientSocket;
 
 
-
-
 // Server data
 std::string SERVER_IP = "";
 std::string DATAFILE = "data.json"; 
@@ -82,7 +80,11 @@ bool checkMailContent(const json& content) {
 
     // Check IP destination
     temp = content["ip_address"];
-    if (!containsString(IP_ADDRESSES,temp)) {
+    if (temp == SERVER_IP)
+    {
+
+    }
+    else if (!containsString(IP_ADDRESSES,temp)) {
         return false;
     }
 
@@ -136,7 +138,7 @@ bool loadData() {
 
 
 
-// Send file throught socket
+// Send file through socket
 bool sendFile(SOCKET clientSocket, const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
@@ -328,8 +330,55 @@ bool createReply(json& reply,
     return true;
 }
 
+bool createReplyError(const json& data, json& reply, const std::string& error) {
+    std::string subject = "Reply: " + data["command"].get<std::string>()
+        + " " + data["ip_address"].get<std::string>();
+    std::string bodypart = error;
+    std::string receiver = data["sender"].get<std::string>();
+    std::string filename = "";
+    createReply(reply, receiver, filename, subject, bodypart);
+    return true;
+}
 
+bool redirect(const json& data, json& reply) {
+    // Check IP location
+    std::string ip = data["ip_address"].get<std::string>();
+    if (!checkIPLocation(ip)) {
+        return false;
+    }
 
+    // Sent email to IP location
+    createReplyError(data, reply, "Can't connect to IP location!");
+    return true;
+}
+
+bool ReadEmailContent(const json& data, json& reply) {
+    std::cout << data.dump() << std::endl;
+    std::string subject = "Reply: " + data["command"].get<std::string>()
+        + " " + data["ip_address"].get<std::string>();
+    std::string bodypart = "";
+    std::string receiver = data["sender"].get<std::string>();
+    std::string filename = "";
+
+    // Check email
+    if (!checkMailContent(data)) {
+        createReplyError(data, reply, "Can't check content!");
+    }
+    else {
+        // Check command
+        std::string command = data["command"].get<std::string>();
+        FuncPtr commandPtr = getFuncPtr(command);
+        if (!commandPtr || !commandPtr(bodypart, filename)) {
+            createReplyError(data, reply, "Unknown Command!");
+        }
+        else {
+            std::cout << "Get server respond!\n";
+            bodypart = "Successfully!";
+            createReply(reply, receiver, filename, subject, bodypart);
+        }
+    }
+    return true;
+}
 
 void runServer() {
     // Prepare the server: Initialize, bind, and listen for incoming connections
@@ -349,14 +398,31 @@ void runServer() {
             break;  // Exit if client connection fails
         }
 
-        json get, send = json();
-        while (receiveClientData(clientSocket, get)) {
-            // Analyze data from here
-            running = ReadEmailContent(get, send);
+        json data, reply = json();
+        while (receiveClientData(clientSocket, data)) {
+            // Check IIP address
+            std::string ip = data["ip_address"].get<std::string>();
 
-            // Create reply for user
-            sendDataToClient(clientSocket, send);
+            // Redirect
+            if (ip == SERVER_IP) {
+                // Analyze data from here
+                running = ReadEmailContent(data, reply);
+            }
+            else if (containsString(IP_ADDRESSES, ip)) {
+                // Redirect
+                if (!redirect(data, reply))
+                {
+                    // Cant connect 
+                    createReplyError(data, reply, "Can't connect to IP location!");
+                }
+            }
+            else {
+                // Unknown IP
+                createReplyError(data, reply, "Unknown IP!");
+            }
 
+            // Send reply to client
+            sendDataToClient(clientSocket, reply);
         }
         // After processing the client, close the client socket
         closesocket(clientSocket);
@@ -370,32 +436,3 @@ void runServer() {
     }
 }
 
-bool ReadEmailContent(const json& data, json& respond) {
-    std::cout << data.dump() << std::endl;
-    std::string subject = "Reply: " + data["command"].get<std::string>()
-                           + " " + data["ip_address"].get<std::string>();
-    std::string bodypart = "";
-    std::string receiver = data["sender"].get<std::string>();
-    std::string filename = "";
-
-    // Check email
-    if (!checkMailContent(data)) {
-        std::cout << "Can't process the mail" << std::endl;
-        bodypart = "Error!";
-    }
-    else {
-        // Check command
-        std::string command = data["command"].get<std::string>();
-        FuncPtr commandPtr = getFuncPtr(command);
-        if (!commandPtr || !commandPtr(bodypart,filename)) {
-            std::cout << "Can't get server respond!\n";
-            bodypart = "Error!";
-        }
-        else {
-            std::cout << "Get server respond!\n";
-            bodypart = "Successfully!";
-        }
-    }
-    createReply(respond, receiver, filename, subject, bodypart);
-    return true;
-}

@@ -93,6 +93,11 @@ bool checkInternet() {
     }
 }
 
+bool checkIPLocation(std::string ip)
+{
+    return false;
+}
+
 
 
 
@@ -129,7 +134,7 @@ std::string extractEmail(const std::string& input) {
     return ""; // Return empty string if no email is found
 }
 
-bool checkIPAddress(std::string& ip) {
+bool checkIPAddress(const std::string& ip) {
     // Regular expression for a valid IPv4 address
     const std::regex ipRegex(
         R"(^((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$)"
